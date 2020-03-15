@@ -21,6 +21,7 @@
             let imageFeaturesMap = fileInfo.rootLevelMetaBoxProperties.imageFeaturesMap;
 
             console.log("Master images in the file:", masterItemIds);
+            console.log("Image features map:", imageFeaturesMap);
 
             imgData.requestImageData(masterContextId, masterItemIds, function(data) {
               console.log(data);
@@ -36,6 +37,8 @@
             const height = data.frames[i].height;
             let iData = new ImageData(data.frames[i].canvasFrameData, width, height);
             let canvas = document.createElement('canvas');
+            canvas.width = width;
+            canvas.height = height;
             let ctx = canvas.getContext("2d");
             ctx.putImageData(iData, 0, 0);
             document.body.appendChild(canvas);
