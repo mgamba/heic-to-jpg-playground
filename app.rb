@@ -2,14 +2,10 @@ require 'sinatra'
 require 'base64'
 
 set :environment, :production
+set :public_folder, 'public'
 
 get '/' do
-  html = '
-    <form action="upload" method="POST" enctype="multipart/form-data">
-      <input type="file" name="file" accept="image/heic">
-      <input type="submit" value="Upload image">
-    </form>
-  '
+  redirect '/index.html'
 end
 
 post '/upload' do

@@ -1,0 +1,42 @@
+<html><body>
+    <!--script src="js/libde265-selector.js"></script-->
+    <script src="js/libde265.min.js"></script>
+    <script src="js/heif-api.js"></script>
+    <script src="js/heif-extension.js"></script>
+    <script src="js/hevc-decoder.js"></script>
+    <script src="js/image-provider.js"></script>
+    <script>
+      function convert() {
+        let file = document.getElementById("file-picker").files[0];
+        let decoder = new HevcDecoder();
+        let reader = new HEIFReader(file);
+        let imgData = new ImageProvider(reader, decoder);
+        reader.requestFileInfo(function(payload) {
+          let fileInfo = payload;
+          console.log("FileInfo contents:", fileInfo);
+
+          if (fileInfo.rootLevelMetaBoxProperties) {
+            let masterContextId = fileInfo.rootLevelMetaBoxProperties.contextId;
+            let masterItemIds = [];
+            let imageFeaturesMap = fileInfo.rootLevelMetaBoxProperties.imageFeaturesMap;
+
+            for (i in imageFeaturesMap) {
+              if (imageFeaturesMap.hasOwnProperty(i) && imageFeaturesMap[i].isMasterImage === true) {
+                masterItemIds.push(parseInt(i));
+              }
+            }
+            console.log("Master images in the file:", masterItemIds);
+
+            imgData.requestImageData(masterContextId, masterItemIds, function(data) {
+              console.log(data);
+            });
+          }
+        });
+      }
+    </script>
+
+    <form action="upload" method="POST" enctype="multipart/form-data">
+      <input id="file-picker" type="file" name="file" onchange="convert()" accept="image/heic">
+      <input type="submit" value="Upload image">
+    </form>
+</body></html>

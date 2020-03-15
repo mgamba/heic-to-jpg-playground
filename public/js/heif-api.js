@@ -63,13 +63,13 @@ var hevcReaderModule = HEVCReaderModule();
 /** HEIF file reader object.
  *  @constructor
  *  @param {string} url URL of the HEIF file for reading. */
-function HEIFReader (url) {
+function HEIFReader (file) {
 
     var self = this;
 
     var _name = "HEIFReader";
 
-    this._url = url;
+    this._file = file;
     this._readerWrapper = null;
     this._testModeUrl = "testMode";
 
@@ -114,39 +114,26 @@ function HEIFReader (url) {
     }
 
     /** @return {string} The url. */
-    this.url = function () {
-        return self._url;
+    this.file = function () {
+        return self._file;
     }
 
     /** @return {FileInfo} FileInfo object as a callback parameter. */
     this.requestFileInfo = function (callback) {
+        console.log(_name + ": REQUEST FILE INFO: " + this._file.name);
 
-        if (this._url !== this._testModeUrl) {
-            if (this._url.indexOf("http:") === -1 &&
-                this._url.indexOf("https:") === -1 &&
-                this._url[0] !== '/') {
-                this._url = "/" + this._url;
-            }
+        let reader = new FileReader();
 
-            console.log(_name + ": REQUEST FILE INFO: " + this._url);
+        reader.onload = (function(theFile) {
+          return function(e) {
+            self._buildFileInfoObject(new Uint8Array(e.target.result));
+            let payload = self._fileInfo;
+            payload.success = true;
+            callback(payload);
+          };
+        })(this._file);
 
-            var xhr = new XMLHttpRequest();
-            xhr.open('GET', this._url, true);
-            xhr.responseType = 'arraybuffer';
-
-            xhr.onload = function (e) {
-                self._buildFileInfoObject(new Uint8Array(this.response));
-                var payload = self._fileInfo;
-                payload.success = true;
-                callback(payload);
-            };
-
-            xhr.send();
-
-        } else {
-            console.log(_name + ": REQUEST TEST FILE INFO: " + this._url);
-            self._buildFileInfoObject(null);
-        }
+        reader.readAsArrayBuffer(this._file);
     };
 
     /** @return {string} Major brand from the File Type Box */
