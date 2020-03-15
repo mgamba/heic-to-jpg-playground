@@ -17,7 +17,9 @@
 
           if (fileInfo.rootLevelMetaBoxProperties) {
             let masterContextId = fileInfo.rootLevelMetaBoxProperties.contextId;
+            const itemFeatureIds = Object.keys(fileInfo.rootLevelMetaBoxProperties.itemFeaturesMap).map(id => parseInt(id));
             let masterItemIds = imgData.getMetaBoxMasterIds(fileInfo);
+            masterItemIds = masterItemIds.filter(id => itemFeatureIds.indexOf(id) === -1);
             let imageFeaturesMap = fileInfo.rootLevelMetaBoxProperties.imageFeaturesMap;
 
             console.log("Master images in the file:", masterItemIds);
